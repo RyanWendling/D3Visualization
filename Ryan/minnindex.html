@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+
+            body {
+                font: 18px;
+                font-family: courier;
+                margin: 0;
+                fill: #383f5e
+            }
+
+            .line {
+                fill: none;
+                stroke: #26464d;
+                stroke-width: 3px;
+            }
+
+            .area {
+                fill: #aaffff;
+            }
+
+            h1 { 
+                display: block;
+                font-size: 2em;
+                margin-top: 1em;
+                margin-bottom: 0;
+                margin-left: 300;
+                margin-right: 0;
+                font-weight: bold;
+            }
+
+            h2 { 
+                display: block;
+                font-size: 1em;
+                margin-top: 1em;
+                margin-bottom: 1em;
+                margin-left: 400;
+                margin-right: 0;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>stress vs time of day</h1>
+        <h2>small multiples</h2>
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <script>
+
+        // makes dimensions of graphs, margin included to prevent info from clipping offscreen
+            var margin = {top: 40, right: 10, bottom: 40, left: 10},
+                    width = 960 - margin.left - margin.right,
+                    height = 130 - margin.top - margin.bottom;
+
+
+        // a function to specify format for our date values, IN JAVASCRIPT VARIABLES CAN STORE FUNCTIONS
+            var parseDate = d3.timeParse("%b %Y");
+
+        // takes a scale input of time and outputs it in the range of 0 to our width
+            var x = d3.scaleLinear()
+                    .range([0, width]);
+
+        // default scale to range type
+            var y = d3.scaleLinear()
+                    .range([height, 0]);
+
+        // TEEEEEEEEEEST
+            var xAxis = d3.axisTop()
+                    .scale(x);
+
+        // this function represents the underlying "value" at each point, the dark blue in my graph
+        // date represents a consistent progression in the x axis, the y0 to y1 difference is
+        // an ever changing price value.
+            var area = d3.area()
+                    .x(function (d) {
+                        return x(d.date);
+                    })
+                    .y0(height)
+                    .y1(function (d) {
+                        return y(d.price);
+                    });
+
+        // This function gives the grey line?
+            var line = d3.line()
+                    .x(function (d) {
+                        return x(d.date);
+                    })
+                    .y(function (d) {
+                        return y(d.price);
+                    });
+
+        // loads our local stocks.csv file
+            d3.csv("minnhour5.csv", type, function (error, data) {
+
+
+                // Nest data by symbol. Groups our data by the 'symbol' characteristic
+                var symbols = d3.nest()
+                        .key(function (d) {
+                            return d.symbol;
+                        })
+                        .entries(data);
+
+                // Compute the maximum price per symbol, needed for the y-domain. ex: S&P has a highest value to
+                // frame the rest of its data. used for the scale
+                symbols.forEach(function (s) {
+                    s.maxPrice = d3.max(s.values, function (d) {
+                        return d.price;
+                    });
+                });
+
+                // Compute the minimum and maximum date across symbols.
+                // We assume values are sorted by date.
+                x.domain([
+                    d3.min(symbols, function (s) {
+                        return s.values[0].date;
+                    }),
+                    d3.max(symbols, function (s) {
+                        return s.values[s.values.length - 1].date;
+                    })
+                ]);
+
+                // Add an SVG element for each symbol, with the desired dimensions and margin. 
+                // Each SVG element corresponds to a graph/symbol type. 
+                var svg = d3.select("body").selectAll("svg")
+                        .data(symbols)
+                        .enter().append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom)
+                        .append("g")
+                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                // Add the area path elements. Note: the y-domain is set per element.
+                svg.append("path")
+                        .attr("class", "area")
+                        .attr("d", function (d) {
+                            y.domain([0, d.maxPrice]);
+                            return area(d.values);
+                        });
+
+                // Add the line path elements. Note: the y-domain is set per element.
+                svg.append("path")
+                        .attr("class", "line")
+                        .attr("d", function (d) {
+                            y.domain([0, d.maxPrice]);
+                            return line(d.values);
+                        });
+
+                // Add a small label for the symbol name.
+                svg.append("text")
+                        .attr("x", width - 6)
+                        .attr("y", height + 15)
+                        .style("text-anchor", "end")
+                        .text(function (d) {
+                            return "id: " + d.key;
+                        });
+
+
+                // TEEEEEESTTT2222222
+                svg.append("g")
+                        .call(xAxis);
+
+                svg.append("text")
+                        .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.top - 10) + ")")
+                        .style("text-anchor", "middle")
+                        .text("time (hour)");
+
+            });
+
+        // provide formatting for the csv input values
+            function type(d) {
+                d.price = +d.price;
+                d.date = d.date;
+                return d;
+            }
+
+        </script>
+    </body>
+</html>
+

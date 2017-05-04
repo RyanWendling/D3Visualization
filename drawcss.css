@@ -1,0 +1,94 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : May 3, 2017, 10:28:57 PM
+    Author     : blllennn
+*/
+
+body {
+    background-color: #E2E2E2;
+    font: 15px Comic Sans MS;
+    margin: 0;
+}
+
+.line {
+    fill: none;
+    stroke: #727272;
+    stroke-width: 1.5px;
+}
+
+.area {
+    fill: #76A3DB;
+}
+
+select{
+    font-family:Book Antiqua;
+}
+
+input{
+    background-color: #76A3DB;
+}
+
+p, form{
+    color: #fff;
+}
+
+h1{
+    font-size: 45px;
+    color: #76A3DB;
+    text-align: center;
+}
+
+h3{
+    text-align: center;
+}
+
+form, select{
+    margin-left: 20px;
+}
+
+aside {
+    background-color: #333;
+    float: left;
+    max-width: 160px;
+    margin: 0;
+    padding: 1em;
+    height: 3000px;
+}
+
+header{
+    background-color: #333;
+}
+
+section {
+    margin-top: 0;
+    margin-left: 200px;
+}
+svg{
+    padding-bottom: 1em;
+    padding-left: 1em;
+}
+
+.axis .domain {
+    display: none;
+}
+
+.chart { 
+    background: #fff;
+}
+
+.axis path, .axis line {
+    fill: none;
+    stroke: #000;
+    stroke-width: 2px;
+    shape-rendering: crispEdges;
+}
+
+button {
+    position: absolute;
+    right: 50px;
+    top: 10px;
+}

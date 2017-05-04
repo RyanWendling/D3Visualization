@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+
+<h1> stress vs post-quit day</h1>
+<!--Inside the <style> element you specify how HTML elements should render in a browser.-->
+<style>
+
+/*  D3.js Axis component allows for easy addition of a horizontal-axis and vertical-axis to any graph. displays reference lines for D3.js Scales automatically. figures out for you how to draw the vertical axis line, the vertical axis ticks, the correct spacing of axis ticks, etc.  */
+.axis .domain {
+  display: none;
+}
+
+</style>
+
+
+<!--The HTML <svg> element is a container for SVG graphics.-->
+<svg width="960" height="500"></svg>
+
+<!--The <script> tag is used to define a client-side script (JavaScript).The <script> element either contains scripting statements, or it points to an external script file through the src attribute.-->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+var svg = d3.select("svg"),
+	/* The CSS margin properties are used to generate space around elements. basically a frame, */
+    margin = {top: 20, right: 20, bottom: 30, left: 40},
+	/* width and height represent the box that the frame surrounds */
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+	/*  define svg as a G element that translates the origin to the top-left corner of the chart area. */
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+/*axis scale useful for position-encoding ordinal data*/
+var x = d3.scaleBand()
+    .rangeRound([0, width])
+    .paddingInner(0.05)
+    .align(0.1);
+
+/*axis scale for continuous quantitative data*/
+var y = d3.scaleLinear()
+    .rangeRound([height, 0]);
+
+/*axis scale that specifies an explicit mapping from a set of data values to a corresponding set of visual attributes (such as colors).*/
+var z = d3.scaleOrdinal()
+    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+/* provides a parser and formatter for delimiter-separated values*/
+d3.csv("stressperday2.csv", function(d, i, columns) {
+  for (i = 1, t = 0; i < columns.length; ++i) t += d[columns[i]] = +d[columns[i]];
+  d.total = t;
+  return d;
+}, function(error, data) {
+  if (error) throw error;
+
+  /* this is the header that each column has at the top */
+  var keys = data.columns.slice(1);
+
+  /* this sorts our saved data, */
+  data.sort(function(a, b) { return b.total - a.total; });
+  x.domain(data.map(function(d) { return d.State; }));
+  /* nice makes it so the domain ends on nice round values */
+  y.domain([0, d3.max(data, function(d) { return d.total; })]).nice();
+  z.domain(keys);
+
+  /* this SVG group element will now hold all the elements as they relate to our x/y axis and keys */
+  g.append("g")
+	/*  selectAll = Selects all paragraphs in the DOM. Since none exist yet, this returns an empty selection. Think of this empty selection as representing the paragraphs that will soon exist. */
+    .selectAll("g")
+	/* .data =  Counts and parses our data values. */
+    .data(d3.stack().keys(keys)(data))
+	/* To create new, data-bound elements, you must use enter(). This method looks at the DOM, and then at the data being handed to it. If there are more data values than corresponding DOM elements, then enter() creates a new placeholder 	element on which you may work your magic. It then hands off a reference to this new placeholder to the next step in the chain. */
+    .enter().append("g")
+	/* append = Takes the placeholder selection created by enter() and inserts a p element into the DOM. Then it hands off a reference to the element it just created to the next step in the chain. */
+      .attr("fill", function(d) { return z(d.key); })
+    .selectAll("rect")
+    .data(function(d) { return d; })
+    .enter().append("rect")
+	  /*attr =  is used to set an HTML attribute and its value on an element.property/value pair takes function as arguement */
+      .attr("x", function(d) { return x(d.data.State); })
+      .attr("y", function(d) { return y(d[1]); })
+      .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+      .attr("width", x.bandwidth());
+
+
+
+
+  /* displays the x axis values at the bottom of the graph, linearly displays all values from 0 column */
+  g.append("g")
+      .attr("class", "axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x))
+	.append("text")
+.attr("transform",
+            "translate(" + (width/2) + " ," + 
+                           (30) + ")")
+      .attr("fill", "#000")
+      .attr("font-weight", "bold")
+      .attr("text-anchor", "middle")
+      .text("User ID");
+
+
+  /* displays the y axis values to the left of the graph, goes by 5 mil increments originally */
+  g.append("g")
+      .attr("class", "axis")
+      .call(d3.axisLeft(y).ticks(null, ".1f"))
+    .append("text")
+      .attr("x", 2)
+      .attr("y", y(y.ticks().pop()) + 0.5)
+      .attr("dy", "0.32em")
+      .attr("fill", "#000")
+      .attr("font-weight", "bold")
+      .attr("text-anchor", "start")
+      .text("Stress Level");
+
+  /* displays legend off to the upper right */
+  var legend = g.append("g")
+      .attr("font-family", "sans-serif")
+      .attr("font-size", 10)
+      .attr("text-anchor", "end")
+    .selectAll("g")
+    .data(keys.slice().reverse())
+    .enter().append("g")
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  /* squares of legend */
+  legend.append("rect")
+      .attr("x", width - 19)
+      .attr("width", 19)
+      .attr("height", 19)
+      .attr("fill", z);
+
+  /* text of legend */
+  legend.append("text")
+      .attr("x", width - 24)
+      .attr("y", 9.5)
+      .attr("dy", "0.32em")
+      .text(function(d) { return d; });
+});
+
+</script>
+
