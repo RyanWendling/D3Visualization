@@ -410,7 +410,8 @@ and open the template in the editor.
                     });
 
                 d3.csv(fileName, type, function (error, data) {
-
+					if (error)
+                        throw error;
                     // Nest data by symbol. Groups our data by the 'symbol' characteristic
                     var symbols = d3.nest()
                             .key(function (d) {
