@@ -29,6 +29,11 @@
                 background-color: #7E6B8F;
             }
 
+            svg{
+                padding-bottom: 2em;
+                padding-left: 2em;
+            }
+
         </style>
     </head>
     <body>
@@ -49,6 +54,8 @@
 
             var y = d3.scaleLinear()
                     .range([height, 0]);
+            
+            var padding = 20;
 
             var area = d3.area()
                     .x(function (d) {
@@ -78,7 +85,7 @@
 
                 // Compute the maximum stress per date, needed for the y-domain.
                 dates.forEach(function (s) {
-                    s.maxPrice = d3.max(s.values, function (d) {
+                    s.maxTime = d3.max(s.values, function (d) {
                         return d.stress;
                     });
                 });
@@ -101,32 +108,8 @@
                         .attr("width", width + margin.left + margin.right)
                         .attr("height", height + margin.top + margin.bottom)
                         .append("g")
-                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-                //Add the scatterplot
-                svg.selectAll("circle")
-                        .data(data)
-                        .enter().append("circle")
-                        .attr("r", 4)
-                        .style("fill", function (d) {
-                            return "red";
-                        })
-                        .attr("cx", function (d) {
-                            if (d.smoked == 1) {
-                                //var value = "\n date = " + d.key + " time = " + d.time;
-                                //document.getElementById("title").innerHTML += value;
-                                return x(d.time);
-                            }
-                        })
-                        .attr("cy", function (d) {
-                            if (d.smoked == 1) {
-                                //var value = "\n date = " + d.key + " stress = " + d.stress;
-                                //document.getElementById("title").innerHTML += value;
-                                return y(d.stress);
-
-                            }
-                        });
-
+                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                        .each(plot, data);
 
                 // Add the X Axis
                 svg.append("g")
@@ -141,7 +124,7 @@
                 svg.append("path")
                         .attr("class", "area")
                         .attr("d", function (d) {
-                            y.domain([0, d.maxPrice]);
+                            y.domain([0, d.maxTime]);
                             return area(d.values);
                         });
 
@@ -149,7 +132,7 @@
                 svg.append("path")
                         .attr("class", "line")
                         .attr("d", function (d) {
-                            y.domain([0, d.maxPrice]);
+                            y.domain([0, d.maxTime]);
                             return line(d.values);
                         });
 
@@ -161,6 +144,33 @@
                         .text(function (d) {
                             return d.key;
                         });
+
+                //Add the scatterplot
+                /*svg.selectAll("circle")
+                        .data(data)
+                        .enter().append("circle")
+                        .attr("r", 4)
+                        .style("fill", function (d) {
+                            return "red";
+                        })
+                        .attr("cx", function (d) {
+                            if (d.smoked == 1) {
+                                //var value = "\n date = " + d.key + " time = " + d.time;
+                                //document.getElementById("title").innerHTML += value;
+                                //console.log("date = " + d.key)
+                                console.log("time = " + d.time)
+                                return x(d.time);
+                            }
+                        })
+                        .attr("cy", function (d) {
+                            if (d.smoked == 1) {
+                                //var value = "\n date = " + d.key + " stress = " + d.stress;
+                                //document.getElementById("title").innerHTML += value;
+                                console.log("stress = " + d.stress)
+                                return y(d.stress);
+
+                            }
+                        });*/
             });
 
             function type(d) {
@@ -170,6 +180,39 @@
                 return d;
             }
 
+            function plot(p, data) {
+                var svg = d3.select(this);
+
+                x.domain(p.maxTime);
+                y.domain(p.maxTime);
+
+                svg.append("rect")
+                        .attr("class", "frame")
+                        .attr("x", padding / 2)
+                        .attr("y", padding / 2)
+                        .attr("width", height - padding)
+                        .attr("height", height - padding);
+
+                svg.selectAll("circle")
+                        .data(data)
+                        .enter().append("circle")
+                        .attr("r", 4)
+                        .style("fill", function (d) {
+                            return "red";
+                        })
+                        .attr("cx", function (d) {
+                            if (d.smoked == 1) {
+                                return x(d[p.x]);
+                            }
+                        })
+                        .attr("cy", function (d) {
+                            if (d.smoked == 1) {
+                                return y(d[p.y]);
+                            }
+                        })
+                        .attr("r", 4)
+                      
+            }
         </script>
     </body>
 </html>
