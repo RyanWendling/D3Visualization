@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Stream Graph</title>
-        <meta charset="UTF-8">
+        <meta charset="utf-8">
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
         <style>
             body { margin:0 auto;}
             h1,h2,p {
@@ -30,56 +31,62 @@
             }
         </style>
     </head>
+
     <body>
-        <script src="https://d3js.org/d3.v4.min.js"></script>
         <script>
-            var fileName = "avgData.csv";
-            d3.csv(fileName, function (error, d) {
-                if (error)
-                    throw error;
+            d3.csv('trends.csv', function (err, d) {
+                if (err)
+                    console.log(err);
+                //console.log(d)
 
                 var nested_data = d3.nest()
                         .key(function (d) {
-                            return d.time;
+                            return d.year;
                         })
                         .entries(d);
 
-                console.log(nested_data);
+                //console.log(nested_data);
 
-                var data = nested_data.map(function (d) {
-                    var formatHour = d3.timeFormat("%H");
-                    var hour = new Date(0, 0, 0, d.key);
-                    var h = formatHour(hour);
-                    
+                var mqpdata = nested_data.map(function (d) {
                     var obj = {
-                        hour: h
+                        month: new Date(d.key, 0, 1)
                     }
-                    console.log(obj);
+
                     d.values.forEach(function (v) {
-                        obj[v.time] = v.stress;
-                        console.log("stress" + d.stress)
+                        obj[v.elec_type] = v.paila;
+                        console.log(d.paila)
                     })
 
                     return obj;
                 })
 
-                //Build Stream Graph
+                buildStreamGraph(mqpdata);
+
+            })
+
+
+            function buildStreamGraph(mqpdata) {
+                var data = mqpdata;
+
+
                 var stack = d3.stack()
-                        .keys(["11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22"])
+                        .keys(["AE", "AREN", "BBT", "BC", "BME", "CE", "CH", "CM", "CS", "ECE", "EV", "HU", "ID", "IE", "IMGD", "MA", "ME", "MG", "PH", "RBE", "SSPS"])
                         .order(d3.stackOrderNone)
                         .offset(d3.stackOffsetWiggle);
 
                 var series = stack(data);
 
-                var width = 900;
-                var height = 500;
+                var width = 850,
+                        height = 500;
 
-                //Setup axis
                 var x = d3.scaleTime()
                         .domain(d3.extent(data, function (d) {
-                            return d.hour;
+                            return d.month;
                         }))
                         .range([100, width]);
+
+                // setup axis
+                var xAxis = d3.axisBottom(x);
 
                 var y = d3.scaleLinear()
                         .domain([0, d3.max(series, function (layer) {
@@ -89,19 +96,15 @@
                             })])
                         .range([height / 2, -200]);
 
-                var xAxis = d3.axisBottom(x);
-
-                var yAxis = d3.axisLeft(y);
-
-                var yAxisr = d3.axisRight(y);
-
-                //Set color
+                //var color = d3.scaleLinear()
+                        //.range(["#045A8D", "#2B8CBE", "#74A9CF", "#A6BDDB", "#D0D1E6", "#F1EEF6"]);
+                
                 var color = d3.scaleOrdinal(d3.schemeCategory20);
 
                 var area = d3.area()
                         .x(function (d) {
-                            console.info('in area function', d);
-                            return x(d.data.hour);
+                            //console.info('in area function', d);
+                            return x(d.data.month);
                         })
                         .y0(function (d) {
                             return y(d[0]);
@@ -143,7 +146,15 @@
                                     .duration(500)
                                     .style("opacity", 0);
                         })
-            })
+
+                svg.append("g")
+                        .attr("class", "axis axis--x")
+                        .attr("transform", "translate(0," + (height) + ")")
+                        .call(xAxis);
+
+                var xAxisGroup = svg.append("g").call(xAxis);
+            }
+
         </script>
     </body>
 </html>

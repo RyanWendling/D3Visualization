@@ -41,7 +41,7 @@
 
         <script>
 
-            chart("data.csv", "orange");
+            chart("avgData.csv", "orange");
 
             var datearray = [];
             var colorrange = [];
@@ -58,7 +58,7 @@
                 }
                 strokecolor = colorrange[0];
 
-                var format = d3.time.format("%m/%d/%y");
+                var format = d3.time.format("%H");
 
                 var margin = {top: 20, right: 40, bottom: 30, left: 30};
                 var width = document.body.clientWidth - margin.left - margin.right;

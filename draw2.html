@@ -13,7 +13,7 @@ and open the template in the editor.
     </head>
     <body>
         <header>
-            <br><h1> Web Analytics Tool </h1><br>
+            <br><h1> NEAT Web Analytics Tool </h1><br>
         </header>
         <aside>
             <p> Choose a participant: </p>
@@ -44,11 +44,15 @@ and open the template in the editor.
             <br><br><br>
             <p> Choose a visualization: </p>
             <form id="visualizationType">
-                <input type="radio" name="visulaizatio" value="Average Small Multiple"> Average Small Multiple <br>
+                <p> Individual </p>
+                
                 <input type="radio" name="visulaizatio" value="Small Multiple"> Detailed Small Multiple <br>
                 <input type="radio" name="visulaizatio" value="Heat Map"> Heat Map <br>
-                <input type="radio" name="visulaizatio" value="Stacked Bar Chart"> Stacked Bar Chart <br>
                 <input type="radio" name="visulaizatio" value="Stream Graph"> Stream Graph
+                
+                <p> Comparison </p>
+                <input type="radio" name="visulaizatio" value="Average Small Multiple"> Average Small Multiple <br>
+                <input type="radio" name="visulaizatio" value="Stacked Bar Chart"> Stacked Bar Chart <br>
             </form>
 
             <br><br>
@@ -92,34 +96,20 @@ and open the template in the editor.
                 var vizualizationChosen = getVisualization();
                 
                 if (vizualizationChosen === "Small Multiple") {
-                    var margin = {top: 8, right: 10, bottom: 2, left: 10},
-                        width = 1050 - margin.left - margin.right,
-                        height = 120 - margin.top - margin.bottom;
-                    
-                    smallMultiple(margin, width, height);
+                    smallMultiple();
                 } 
 
                 else if ((vizualizationChosen === "Stacked Bar Chart") && singleInstance == 0) {
-                    
-                
                     singleInstance = 1;
-                    barChart(margin, width, height);
+                    barChart();
                 }
                 
                 else if(vizualizationChosen === "Average Small Multiple"){
-                    var margin = {top: 40, right: 10, bottom: 40, left: 10},
-                        width = 960 - margin.left - margin.right,
-                        height = 130 - margin.top - margin.bottom;
-                
-                    avgSmallMultiple(margin, width, height);
+                    avgSmallMultiple();
                 }
                 
                 else if(vizualizationChosen === "Stream Graph"){
-                    var margin = {top: 20, right: 40, bottom: 30, left: 30},
-                        width = 960 - margin.left - margin.right,
-                        height = 400 - margin.top - margin.bottom;
-                
-                    streamGraph(margin, width, height);
+                    streamGraph();
                 }
             }
 
@@ -129,7 +119,11 @@ and open the template in the editor.
 
 
             // Small Multiple
-            function smallMultiple(margin, width, height) {
+            function smallMultiple() {
+                var margin = {top: 8, right: 10, bottom: 2, left: 10},
+                        width = 1050 - margin.left - margin.right,
+                        height = 120 - margin.top - margin.bottom;
+                
                 var user = getUser();
                 var fileName = "data/" + user + "data.csv";
                 
@@ -238,7 +232,7 @@ and open the template in the editor.
 
 
             //STACKED BAR CHART
-            function barChart(margin, width, height) {
+            function barChart() {
                 var margin = {top: 20, right: 20, bottom: 30, left: 40},
                         width = 960 - margin.left - margin.right,
                         height = 500 - margin.top - margin.bottom;
@@ -382,7 +376,11 @@ and open the template in the editor.
             
             
             //AVERAGE SMALL MULTIPLE
-            function avgSmallMultiple(margin, width, height){
+            function avgSmallMultiple(){
+                var margin = {top: 40, right: 10, bottom: 40, left: 10},
+                        width = 960 - margin.left - margin.right,
+                        height = 130 - margin.top - margin.bottom;
+                    
                 var fileName = "avgMultipleData2.csv";
                 var parseDate = d3.timeParse("%b %Y");
 
@@ -498,6 +496,11 @@ and open the template in the editor.
             
             //STREAM GRAPH
             function streamGraph(margin, width, height){
+                var margin = {top: 20, right: 40, bottom: 30, left: 30},
+                        width = 960 - margin.left - margin.right,
+                        height = 400 - margin.top - margin.bottom;
+                
+                    
                 var fileName = "stressData2.csv";
                
                 var colorrange = ["#045A8D", "#2B8CBE", "#74A9CF", "#A6BDDB", "#D0D1E6", "#F1EEF6"];
