@@ -68,6 +68,9 @@ and open the template in the editor.
 
         <script src="https://d3js.org/d3.v4.min.js"></script>
         <script>
+
+			var singleInstance = 0;
+
             function getUser() {
                 var id = document.getElementById("partID");
                 var user = id.options[id.selectedIndex].value;
@@ -96,10 +99,10 @@ and open the template in the editor.
                     smallMultiple(margin, width, height);
                 } 
 
-                else if (vizualizationChosen === "Stacked Bar Chart") {
+                else if ((vizualizationChosen === "Stacked Bar Chart") && singleInstance == 0) {
                     
                 
-                    
+                    singleInstance = 1;
                     barChart(margin, width, height);
                 }
                 
@@ -242,10 +245,10 @@ and open the template in the editor.
                 
                 var svg = d3.select("body")
                         .append("svg")
-                        .attr("width", width)
-                        .attr("height", height);
+                        .attr("width", width + 60)
+                        .attr("height", height + 50);
                 
-                var fileName = "barChartData.csv";
+                var fileName = "barChartData2.csv";
                 var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
             
                 var x = d3.scaleBand()
@@ -380,7 +383,7 @@ and open the template in the editor.
             
             //AVERAGE SMALL MULTIPLE
             function avgSmallMultiple(margin, width, height){
-                var fileName = "avgMultipleData.csv";
+                var fileName = "avgMultipleData2.csv";
                 var parseDate = d3.timeParse("%b %Y");
 
                 var x = d3.scaleLinear()
