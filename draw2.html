@@ -6,14 +6,14 @@ and open the template in the editor.
 -->
 <html>
     <head>
-        <title>Web Analytics Tool</title>
+        <title>NEAT Lab Web Analytics Tool</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" type="text/css" href="drawcss.css">
     </head>
     <body>
         <header>
-            <br><h1> NEAT Web Analytics Tool </h1><br>
+            <br><h1> NEAT Lab Web Analytics Tool </h1><br>
         </header>
         <aside>
             <p> Choose a participant: </p>
@@ -45,11 +45,11 @@ and open the template in the editor.
             <p> Choose a visualization: </p>
             <form id="visualizationType">
                 <p> Individual </p>
-                
+
                 <input type="radio" name="visulaizatio" value="Small Multiple"> Detailed Small Multiple <br>
                 <input type="radio" name="visulaizatio" value="Heat Map"> Heat Map <br>
                 <input type="radio" name="visulaizatio" value="Stream Graph"> Stream Graph
-                
+
                 <p> Comparison </p>
                 <input type="radio" name="visulaizatio" value="Average Small Multiple"> Average Small Multiple <br>
                 <input type="radio" name="visulaizatio" value="Stacked Bar Chart"> Stacked Bar Chart <br>
@@ -68,12 +68,14 @@ and open the template in the editor.
         <section>
             <br>
             <h3 id="title"> </h3>
+            
+            <div id="dataset-picker"></div>
         </section>
 
         <script src="https://d3js.org/d3.v4.min.js"></script>
         <script>
 
-			var singleInstance = 0;
+            var singleInstance = 0;
 
             function getUser() {
                 var id = document.getElementById("partID");
@@ -94,22 +96,18 @@ and open the template in the editor.
 
             function draw() {
                 var vizualizationChosen = getVisualization();
-                
+
                 if (vizualizationChosen === "Small Multiple") {
                     smallMultiple();
-                } 
-
-                else if ((vizualizationChosen === "Stacked Bar Chart") && singleInstance == 0) {
+                } else if ((vizualizationChosen === "Stacked Bar Chart") && singleInstance == 0) {
                     singleInstance = 1;
                     barChart();
-                }
-                
-                else if(vizualizationChosen === "Average Small Multiple"){
+                } else if (vizualizationChosen === "Average Small Multiple") {
                     avgSmallMultiple();
-                }
-                
-                else if(vizualizationChosen === "Stream Graph"){
+                } else if (vizualizationChosen === "Stream Graph") {
                     streamGraph();
+                } else if (vizualizationChosen === "Heat Map") {
+                    heatMap();
                 }
             }
 
@@ -123,10 +121,10 @@ and open the template in the editor.
                 var margin = {top: 8, right: 10, bottom: 2, left: 10},
                         width = 1050 - margin.left - margin.right,
                         height = 120 - margin.top - margin.bottom;
-                
+
                 var user = getUser();
                 var fileName = "data/" + user + "data.csv";
-                
+
                 var parseDate = d3.timeParse("%H:%M:%S");
 
                 var x = d3.scaleTime()
@@ -236,27 +234,27 @@ and open the template in the editor.
                 var margin = {top: 20, right: 20, bottom: 30, left: 40},
                         width = 960 - margin.left - margin.right,
                         height = 500 - margin.top - margin.bottom;
-                
+
                 var svg = d3.select("body")
                         .append("svg")
                         .attr("width", width + 60)
                         .attr("height", height + 50);
-                
+
                 var fileName = "barChartData2.csv";
                 var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-            
+
                 var x = d3.scaleBand()
-                    .rangeRound([0, width])
-                    .paddingInner(0.05)
-                    .align(0.1);
+                        .rangeRound([0, width])
+                        .paddingInner(0.05)
+                        .align(0.1);
 
                 /*axis scale for continuous quantitative data*/
                 var y = d3.scaleLinear()
-                    .rangeRound([height, 0]);
+                        .rangeRound([height, 0]);
 
                 /*axis scale that specifies an explicit mapping from a set of data values to a corresponding set of visual attributes (such as colors).*/
                 var z = d3.scaleOrdinal()
-                    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+                        .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
                 /* provides a parser and formatter for delimiter-separated values*/
                 d3.csv(fileName, function (d, i, columns) {
@@ -265,153 +263,152 @@ and open the template in the editor.
                     d.total = t;
                     return d;
                 },
-                
-                function (error, data) {
-                    if (error)
-                        throw error;
+                        function (error, data) {
+                            if (error)
+                                throw error;
 
-                    /* this is the header that each column has at the top */
-                    var keys = data.columns.slice(1);
+                            /* this is the header that each column has at the top */
+                            var keys = data.columns.slice(1);
 
-                    /* this sorts our saved data, */
-                    data.sort(function (a, b) {
-                        return b.total - a.total;
-                    });
-                    x.domain(data.map(function (d) {
-                        return d.State;
-                    }));
-                    /* nice makes it so the domain ends on nice round values */
-                    y.domain([0, d3.max(data, function (d) {
-                            return d.total;
-                        })]).nice();
-                    z.domain(keys);
+                            /* this sorts our saved data, */
+                            data.sort(function (a, b) {
+                                return b.total - a.total;
+                            });
+                            x.domain(data.map(function (d) {
+                                return d.State;
+                            }));
+                            /* nice makes it so the domain ends on nice round values */
+                            y.domain([0, d3.max(data, function (d) {
+                                    return d.total;
+                                })]).nice();
+                            z.domain(keys);
 
-                    /* this SVG group element will now hold all the elements as they relate to our x/y axis and keys */
-                    g.append("g")
-                        /*  selectAll = Selects all paragraphs in the DOM. Since none exist yet, this returns an empty selection. Think of this empty selection as representing the paragraphs that will soon exist. */
-                        .selectAll("g")
-                        /* .data =  Counts and parses our data values. */
-                        .data(d3.stack().keys(keys)(data))
-                        /* To create new, data-bound elements, you must use enter(). This method looks at the DOM, and then at the data being handed to it. If there are more data values than corresponding DOM elements, then enter() creates a new placeholder 	element on which you may work your magic. It then hands off a reference to this new placeholder to the next step in the chain. */
-                        .enter().append("g")
-                        /* append = Takes the placeholder selection created by enter() and inserts a p element into the DOM. Then it hands off a reference to the element it just created to the next step in the chain. */
-                        .attr("fill", function (d) {
-                            return z(d.key);
-                        })
-                        .selectAll("rect")
-                        .data(function (d) {
-                            return d;
-                        })
-                        .enter().append("rect")
-                        /*attr =  is used to set an HTML attribute and its value on an element.property/value pair takes function as arguement */
-                        .attr("x", function (d) {
-                            return x(d.data.State);
-                        })
-                        .attr("y", function (d) {
-                            return y(d[1]);
-                        })
-                        .attr("height", function (d) {
-                            return y(d[0]) - y(d[1]);
-                        })
-                        .attr("width", x.bandwidth());
-
-
-                    /* displays the x axis values at the bottom of the graph, linearly displays all values from 0 column */
-                    g.append("g")
-                        .attr("class", "axis")
-                        .attr("transform", "translate(0," + height + ")")
-                        .call(d3.axisBottom(x))
-                        .append("text")
-                        .attr("transform",
-                                "translate(" + (width / 2) + " ," +
-                                (30) + ")")
-                        .attr("fill", "#000")
-                        .attr("font-weight", "bold")
-                        .attr("text-anchor", "middle")
-                        .text("User ID");
+                            /* this SVG group element will now hold all the elements as they relate to our x/y axis and keys */
+                            g.append("g")
+                                    /*  selectAll = Selects all paragraphs in the DOM. Since none exist yet, this returns an empty selection. Think of this empty selection as representing the paragraphs that will soon exist. */
+                                    .selectAll("g")
+                                    /* .data =  Counts and parses our data values. */
+                                    .data(d3.stack().keys(keys)(data))
+                                    /* To create new, data-bound elements, you must use enter(). This method looks at the DOM, and then at the data being handed to it. If there are more data values than corresponding DOM elements, then enter() creates a new placeholder 	element on which you may work your magic. It then hands off a reference to this new placeholder to the next step in the chain. */
+                                    .enter().append("g")
+                                    /* append = Takes the placeholder selection created by enter() and inserts a p element into the DOM. Then it hands off a reference to the element it just created to the next step in the chain. */
+                                    .attr("fill", function (d) {
+                                        return z(d.key);
+                                    })
+                                    .selectAll("rect")
+                                    .data(function (d) {
+                                        return d;
+                                    })
+                                    .enter().append("rect")
+                                    /*attr =  is used to set an HTML attribute and its value on an element.property/value pair takes function as arguement */
+                                    .attr("x", function (d) {
+                                        return x(d.data.State);
+                                    })
+                                    .attr("y", function (d) {
+                                        return y(d[1]);
+                                    })
+                                    .attr("height", function (d) {
+                                        return y(d[0]) - y(d[1]);
+                                    })
+                                    .attr("width", x.bandwidth());
 
 
-                    /* displays the y axis values to the left of the graph, goes by 5 mil increments originally */
-                    g.append("g")
-                        .attr("class", "axis")
-                        .call(d3.axisLeft(y).ticks(null, ".1f"))
-                        .append("text")
-                        .attr("x", 2)
-                        .attr("y", y(y.ticks().pop()) + 0.5)
-                        .attr("dy", "0.32em")
-                        .attr("fill", "#000")
-                        .attr("font-weight", "bold")
-                        .attr("text-anchor", "start")
-                        .text("Stress Level");
+                            /* displays the x axis values at the bottom of the graph, linearly displays all values from 0 column */
+                            g.append("g")
+                                    .attr("class", "axis")
+                                    .attr("transform", "translate(0," + height + ")")
+                                    .call(d3.axisBottom(x))
+                                    .append("text")
+                                    .attr("transform",
+                                            "translate(" + (width / 2) + " ," +
+                                            (30) + ")")
+                                    .attr("fill", "#000")
+                                    .attr("font-weight", "bold")
+                                    .attr("text-anchor", "middle")
+                                    .text("User ID");
 
-                    /* displays legend off to the upper right */
-                    var legend = g.append("g")
-                        .attr("font-family", "sans-serif")
-                        .attr("font-size", 10)
-                        .attr("text-anchor", "end")
-                        .selectAll("g")
-                        .data(keys.slice().reverse())
-                        .enter().append("g")
-                        .attr("transform", function (d, i) {
-                            return "translate(0," + i * 20 + ")";
+
+                            /* displays the y axis values to the left of the graph, goes by 5 mil increments originally */
+                            g.append("g")
+                                    .attr("class", "axis")
+                                    .call(d3.axisLeft(y).ticks(null, ".1f"))
+                                    .append("text")
+                                    .attr("x", 2)
+                                    .attr("y", y(y.ticks().pop()) + 0.5)
+                                    .attr("dy", "0.32em")
+                                    .attr("fill", "#000")
+                                    .attr("font-weight", "bold")
+                                    .attr("text-anchor", "start")
+                                    .text("Stress Level");
+
+                            /* displays legend off to the upper right */
+                            var legend = g.append("g")
+                                    .attr("font-family", "sans-serif")
+                                    .attr("font-size", 10)
+                                    .attr("text-anchor", "end")
+                                    .selectAll("g")
+                                    .data(keys.slice().reverse())
+                                    .enter().append("g")
+                                    .attr("transform", function (d, i) {
+                                        return "translate(0," + i * 20 + ")";
+                                    });
+
+                            /* squares of legend */
+                            legend.append("rect")
+                                    .attr("x", width - 19)
+                                    .attr("width", 19)
+                                    .attr("height", 19)
+                                    .attr("fill", z);
+
+                            /* text of legend */
+                            legend.append("text")
+                                    .attr("x", width - 24)
+                                    .attr("y", 9.5)
+                                    .attr("dy", "0.32em")
+                                    .text(function (d) {
+                                        return d;
+                                    });
                         });
-
-                    /* squares of legend */
-                    legend.append("rect")
-                        .attr("x", width - 19)
-                        .attr("width", 19)
-                        .attr("height", 19)
-                        .attr("fill", z);
-
-                    /* text of legend */
-                    legend.append("text")
-                        .attr("x", width - 24)
-                        .attr("y", 9.5)
-                        .attr("dy", "0.32em")
-                        .text(function (d) {
-                            return d;
-                        });
-                });
             }
-            
-            
+
+
             //AVERAGE SMALL MULTIPLE
-            function avgSmallMultiple(){
+            function avgSmallMultiple() {
                 var margin = {top: 40, right: 10, bottom: 40, left: 10},
                         width = 960 - margin.left - margin.right,
                         height = 130 - margin.top - margin.bottom;
-                    
+
                 var fileName = "avgMultipleData2.csv";
                 var parseDate = d3.timeParse("%b %Y");
 
                 var x = d3.scaleLinear()
-                    .range([0, width]);
+                        .range([0, width]);
 
                 var y = d3.scaleLinear()
-                    .range([height, 0]);
+                        .range([height, 0]);
 
                 var xAxis = d3.axisTop()
-                    .scale(x);
+                        .scale(x);
 
                 var area = d3.area()
-                    .x(function (d) {
-                        return x(d.date);
-                    })
-                    .y0(height)
-                    .y1(function (d) {
-                        return y(d.price);
-                    });
+                        .x(function (d) {
+                            return x(d.date);
+                        })
+                        .y0(height)
+                        .y1(function (d) {
+                            return y(d.price);
+                        });
 
                 var line = d3.line()
-                    .x(function (d) {
-                        return x(d.date);
-                    })
-                    .y(function (d) {
-                        return y(d.price);
-                    });
+                        .x(function (d) {
+                            return x(d.date);
+                        })
+                        .y(function (d) {
+                            return y(d.price);
+                        });
 
                 d3.csv(fileName, type, function (error, data) {
-					if (error)
+                    if (error)
                         throw error;
                     // Nest data by symbol. Groups our data by the 'symbol' characteristic
                     var symbols = d3.nest()
@@ -493,20 +490,27 @@ and open the template in the editor.
                     return d;
                 }
             }
-            
+
             //STREAM GRAPH
-            function streamGraph(margin, width, height){
+            function streamGraph() {
                 var margin = {top: 20, right: 40, bottom: 30, left: 30},
                         width = 960 - margin.left - margin.right,
                         height = 400 - margin.top - margin.bottom;
-                
-                    
+
+
                 var fileName = "stressData2.csv";
-               
+
                 var colorrange = ["#045A8D", "#2B8CBE", "#74A9CF", "#A6BDDB", "#D0D1E6", "#F1EEF6"];
                 strokecolor = colorrange[0];
-               
+
                 var format = d3.timeParse("%H:%M:%S");
+            }
+
+            //HEAT MAP
+            function heatMap() {
+                var fileName = "6010.csv";
+                window.localStorage.setItem("fileName", fileName);
+                window.location.href="heatMap.html";
             }
         </script>
     </body>

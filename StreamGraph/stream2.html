@@ -35,10 +35,6 @@
     <body>
         <script src="http://d3js.org/d3.v2.js"></script>
 
-
-        <div class="chart">
-        </div>
-
         <script>
 
             chart("avgData.csv", "orange");
@@ -122,7 +118,7 @@
                             return y(d.y0 + d.y);
                         });
 
-                var svg = d3.select(".chart").append("svg")
+                var svg = d3.select("body").append("svg")
                         .attr("width", width + margin.left + margin.right)
                         .attr("height", height + margin.top + margin.bottom)
                         .append("g")
