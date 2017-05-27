@@ -11,6 +11,7 @@ and open the template in the editor.
 body {
     background-color: #E2E2E2;
     margin: 0;
+    color: #fff;
 }
 
 .line {
@@ -105,4 +106,8 @@ text.axis-workweek {
 
 text.axis-worktime {
     fill: #000;
+}
+
+input{
+    align-items: center;
 }

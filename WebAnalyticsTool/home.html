@@ -9,7 +9,7 @@ and open the template in the editor.
         <title>NEAT Lab Web Analytics Tool</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="drawcss.css">
+        <link rel="stylesheet" type="text/css" href="homecss.css">
     </head>
     <body>
         <header>
@@ -60,7 +60,7 @@ and open the template in the editor.
                    value="GO" 
                    onclick="draw()" />
             <input type="button" 
-                   value="RELOAD" 
+                   value="CLEAR" 
                    onclick="reload()" />
             <br>
         </aside>
@@ -73,6 +73,7 @@ and open the template in the editor.
         </section>
 
         <script src="https://d3js.org/d3.v4.min.js"></script>
+        <script src="draw.js" type="text/javascript"></script>
         <script>
 
             var singleInstance = 0;
@@ -95,70 +96,13 @@ and open the template in the editor.
             }
 
             function draw() {
+                var user = getUser();
                 var vizualizationChosen = getVisualization();
-
-                if (vizualizationChosen === "Small Multiple") {
-                    smallMultiple();
-                } 
-                else if ((vizualizationChosen === "Stacked Bar Chart") && singleInstance == 0) {
-                    singleInstance = 1;
-                    barChart();
-                } 
-                else if (vizualizationChosen === "Average Small Multiple") {
-                    avgSmallMultiple();
-                } 
-                else if (vizualizationChosen === "Stream Graph") {
-                    streamGraph();
-                } 
-                else if (vizualizationChosen === "Heat Map") {
-                    heatMap();
-                }
+                runVisualization(user, vizualizationChosen);
             }
-
-            function reload() {
+            
+            function reload(){
                 location.reload();
-            }
-
-
-            // Small Multiple
-            function smallMultiple() {
-                var user = getUser();
-                var fileName = "csv/smallMultipleData/" + user + "data.csv";
-                window.localStorage.setItem("fileName", fileName);
-                window.location.href="smallMultiple.html";
-            }
-
-
-            //STACKED BAR CHART
-            function barChart() {
-                var fileName = "csv/barChartData.csv";
-                window.localStorage.setItem("fileName", fileName);
-                window.location.href="barChart.html";
-            }
-
-
-            //AVERAGE SMALL MULTIPLE
-            function avgSmallMultiple() {
-                var fileName = "csv/avgMultipleData.csv";
-                window.localStorage.setItem("fileName", fileName);
-                window.location.href="avgSmallMultiple.html";
-            }
-
-            //STREAM GRAPH
-            function streamGraph() {
-                var user = getUser();
-                var fileName = "csv/streamGraphData/" + user + ".csv";
-                window.localStorage.setItem("fileName", fileName);
-                window.location.href="streamGraph.html";
-            }
-
-            //HEAT MAP
-            function heatMap() {
-                //var user = getUser();
-                //var fileName = "csv/heatMapData/" + user + ".csv";
-                var fileName = "csv/heatMapData/6010.csv";
-                window.localStorage.setItem("fileName", fileName);
-                window.location.href="heatMap.html";
             }
         </script>
     </body>
